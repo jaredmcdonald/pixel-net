@@ -8,7 +8,7 @@ const palette = color => `#${asHex(color * (0xffffff / (PALETTE_SIZE - 1)))}`
 
 const getPixelSize = (canvas, pixels) => canvas.height / pixels.length
 
-export {getPixelSize};
+export {getPixelSize}
 
 // draws a given pixel matrix to the canvas
 export default function draw(pixels) {

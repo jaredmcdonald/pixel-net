@@ -35,17 +35,18 @@ function setupHandlers(pixels, net) {
   })
 }
 
-// just Math.rounding wasn't working because all-zero rows end up as 0.5
-// how to correct for that? another layer in the network?
+// all-zero rows end up predicted as 0.5, so Math.round produces better results
+// when we want inversion, and rounding down 0.5 works better otherwise
+// todo: figure out why empty rows have this property (maybe because they are
+// exceedingly rare in the training data)
 function normalize(n) {
-  return n <= 0.5 ? 0 : 1
+  return Math.round(n)
+  // return n <= 0.5 ? 0 : 1
 }
 
-function generateTrainingSet() {
+function generateTrainingSet(fn) {
   const input = Matrix.rand(TRAINING_ROWS, MATRIX_SIZE / 2, () => Math.round(Math.random())) // 1 or 0
-  const output = new Matrix(
-    input.map(row => row.slice().reverse()) // mirror
-  )
+  const output = new Matrix(input.map(fn))
   return {input, output}
 }
 
@@ -53,6 +54,10 @@ function generateTrainingSet() {
 const pixels = Matrix.zeros(MATRIX_SIZE, MATRIX_SIZE)
 draw(pixels)
 
-const {input, output} = generateTrainingSet()
+const mirror = row => row.slice().reverse()
+const not = row => row.map(i => Number(!i))
+const mirrorNot = row => mirror(not(row))
+
+const {input, output} = generateTrainingSet(mirrorNot)
 const net = trainNeuralNet(input, output)
 setupHandlers(pixels, net)
