@@ -21,29 +21,53 @@ export function sigmoid(x, deriv = false) {
   return Matrix.div(ones, Matrix.add(ones, Matrix.exp(Matrix.mul(x, -1))))
 }
 
-export default function trainNeuralNet(input, output, nonlin = sigmoid) {
-  // initialize hidden layer
-  let synapse = Matrix.sub(
-    Matrix.mul(Matrix.rand(input[0].length, output[0].length), 2),
-    1
-  )
+export default function trainNeuralNet(
+  input,
+  output,
+  nonlin = sigmoid,
+  numLayers = 1
+) {
+  const synapses = []
+  // initialize hidden layers
+  for (let i = 0; i < numLayers; i += 1) {
+    synapses[i] = Matrix.sub(
+      Matrix.mul(Matrix.rand(input[0].length, output[0].length), 2),
+      1
+    )
+  }
 
   for (let i = 0; i < TRAINING_ITERATIONS; i += 1) {
-    let layer0 = input
+    const layers = [input] // manually set first layer to the input
 
-    // make a prediction
-    let layer1 = nonlin(layer0.mmul(synapse))
+    // feed thru the network and make a prediction (residing in last layer)
+    for (let j = 1; j <= numLayers; j += 1) {
+      layers[j] = nonlin(layers[j - 1].mmul(synapses[j - 1]))
+    }
 
-    // how far off were we?
-    const layer1Error = Matrix.sub(output, layer1)
+    const deltas = []
+    for (let j = numLayers; j >= 1; j -= 1) {
+      // how far off were we?
+      const layerError = Matrix.sub(output, layers[j])
 
-    // normalize error by multiplying by the derivative (i think...?)
-    const layer1Delta = Matrix.mul(layer1Error, nonlin(layer1, true))
+      // normalize error by multiplying by the derivative (i think...?)
+      deltas[j] = Matrix.mul(layerError, nonlin(layers[j], true))
+    }
 
     // add our normalized error to the hidden layer
-    synapse = Matrix.add(synapse, layer0.transpose().mmul(layer1Delta))
+    for (let j = numLayers - 1; j >= 0; j -= 1) {
+      synapses[j] = Matrix.add(
+        synapses[j],
+        layers[j].transpose().mmul(deltas[j + 1])
+      )
+    }
   }
 
   // return a prediction function
-  return toPredict => nonlin(toPredict.mmul(synapse))
+  return toPredict => {
+    const layers = [toPredict]
+    for (let j = 1; j <= numLayers; j += 1) {
+      layers[j] = nonlin(layers[j - 1].mmul(synapses[j - 1]))
+    }
+    return layers[numLayers - 1]
+  }
 }
