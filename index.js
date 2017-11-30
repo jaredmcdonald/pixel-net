@@ -37,8 +37,7 @@ function setupHandlers(pixels, net) {
 
 // all-zero rows end up predicted as 0.5, so Math.round produces better results
 // when we want inversion, and rounding down 0.5 works better otherwise
-// todo: figure out why empty rows have this property (maybe because they are
-// exceedingly rare in the training data)
+// todo: figure out why empty rows have this property
 function normalize(n) {
   return Math.round(n)
   // return n <= 0.5 ? 0 : 1
@@ -46,6 +45,10 @@ function normalize(n) {
 
 function generateTrainingSet(fn) {
   const input = Matrix.rand(TRAINING_ROWS, MATRIX_SIZE / 2, () => Math.round(Math.random())) // 1 or 0
+  for (let i = 0; i < TRAINING_ROWS / 2; i += 1) {
+    // add some all-zero rows because that's pretty common in practice
+    input.addRow(Matrix.zeros(1, MATRIX_SIZE / 2))
+  }
   const output = new Matrix(input.map(fn))
   return {input, output}
 }
@@ -58,6 +61,6 @@ const mirror = row => row.slice().reverse()
 const not = row => row.map(i => Number(!i))
 const mirrorNot = row => mirror(not(row))
 
-const {input, output} = generateTrainingSet(mirrorNot)
+const {input, output} = generateTrainingSet(mirror)
 const net = trainNeuralNet(input, output)
 setupHandlers(pixels, net)
