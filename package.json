@@ -6,6 +6,7 @@
   "scripts": {
     "build": "rollup -c",
     "build-watch": "rollup -c --watch",
+    "prettier": "prettier --write *.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,6 +15,8 @@
     "ml-matrix": "^5.0.1"
   },
   "devDependencies": {
+    "eslint": "^4.12.1",
+    "prettier": "^1.8.2",
     "rollup": "^0.52.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-sourcemaps": "^0.4.2"

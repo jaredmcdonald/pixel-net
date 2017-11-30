@@ -13,8 +13,8 @@ export default {
     resolve({
       // use "jsnext:main" if possible
       // – see https://github.com/rollup/rollup/wiki/jsnext:main
-      jsnext: true,  // Default: false
-      browser: true,  // Default: false
+      jsnext: true, // Default: false
+      browser: true // Default: false
     }),
     sourcemaps()
   ]

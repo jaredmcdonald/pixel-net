@@ -8,12 +8,13 @@ const TRAINING_ROWS = 100
 function setupHandlers(pixels, net) {
   const canvas = document.querySelector('canvas')
   const pixelSize = getPixelSize(canvas, pixels)
-  canvas.addEventListener('click', ({ clientX, clientY }) => {
+  canvas.addEventListener('click', ({clientX, clientY}) => {
     const rect = canvas.getBoundingClientRect()
     const x = Math.floor((clientX - rect.left) / pixelSize)
     const y = Math.floor((clientY - rect.top) / pixelSize)
 
-    if (x <= MATRIX_SIZE / 2 - 1) { // only allow drawing on the left side
+    if (x <= MATRIX_SIZE / 2 - 1) {
+      // only allow drawing on the left side
       pixels.set(y, x, Number(!pixels.get(y, x)))
       draw(pixels)
     }
@@ -44,7 +45,11 @@ function normalize(n) {
 }
 
 function generateTrainingSet(fn) {
-  const input = Matrix.rand(TRAINING_ROWS, MATRIX_SIZE / 2, () => Math.round(Math.random())) // 1 or 0
+  const input = Matrix.rand(
+    TRAINING_ROWS,
+    MATRIX_SIZE / 2,
+    () => Math.round(Math.random()) // 1 or 0
+  )
   for (let i = 0; i < TRAINING_ROWS / 2; i += 1) {
     // add some all-zero rows because that's pretty common in practice
     input.addRow(Matrix.zeros(1, MATRIX_SIZE / 2))
@@ -57,6 +62,7 @@ function generateTrainingSet(fn) {
 const pixels = Matrix.zeros(MATRIX_SIZE, MATRIX_SIZE)
 draw(pixels)
 
+// some functions to generate fake training data
 const mirror = row => row.slice().reverse()
 const not = row => row.map(i => Number(!i))
 const mirrorNot = row => mirror(not(row))
