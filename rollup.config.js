@@ -1,10 +1,11 @@
 // rollup.config.js
-import resolve from 'rollup-plugin-node-resolve';
+import resolve from 'rollup-plugin-node-resolve'
+import sourcemaps from 'rollup-plugin-sourcemaps'
 
 export default {
-  input: 'blargh.js',
+  input: 'index.js',
   output: {
-    file: 'dist/blargh.js',
+    file: 'dist/bundle.js',
     format: 'iife'
   },
   name: 'blargh',
@@ -14,6 +15,7 @@ export default {
       // – see https://github.com/rollup/rollup/wiki/jsnext:main
       jsnext: true,  // Default: false
       browser: true,  // Default: false
-    })
+    }),
+    sourcemaps()
   ]
-};
+}
