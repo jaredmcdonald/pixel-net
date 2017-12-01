@@ -1,6 +1,7 @@
 import {Matrix} from 'ml-matrix'
 
 const TRAINING_ITERATIONS = 10000
+const LEARNING_RATE = 0.01 // TODO figure out what this is
 
 export function relu(x, deriv = false) {
   const zeros = Matrix.zeros(x.length, x[0].length)
@@ -24,15 +25,18 @@ export function sigmoid(x, deriv = false) {
 export default function trainNeuralNet(input, output, nonlin = sigmoid) {
   // initialize hidden layer
   let synapse = Matrix.sub(
-    Matrix.mul(Matrix.rand(input[0].length, output[0].length), 2),
+    Matrix.mul(Matrix.rand(input.columns, output.columns), 2),
     1
   )
+
+  // initialize biases; TODO understand why it has this particular shape
+  let biases = Matrix.zeros(1, input.columns)
 
   for (let i = 0; i < TRAINING_ITERATIONS; i += 1) {
     let layer0 = input
 
     // make a prediction
-    let layer1 = nonlin(layer0.mmul(synapse))
+    let layer1 = nonlin(layer0.mmul(synapse).addRowVector(biases))
 
     // how far off were we?
     const layer1Error = Matrix.sub(output, layer1)
@@ -42,8 +46,15 @@ export default function trainNeuralNet(input, output, nonlin = sigmoid) {
 
     // add our normalized error to the hidden layer
     synapse = Matrix.add(synapse, layer0.transpose().mmul(layer1Delta))
+
+    // update biases: take the cumulative error in each prediction, normalize it
+    // (by multiplying by the rate), and add it to exitsting biases (I think?)
+    biases = Matrix.add(
+      biases,
+      Matrix.mul(layer1Error.sum('column'), LEARNING_RATE)
+    )
   }
 
   // return a prediction function
-  return toPredict => nonlin(toPredict.mmul(synapse))
+  return toPredict => nonlin(toPredict.mmul(synapse).addRowVector(biases))
 }
