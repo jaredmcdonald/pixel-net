@@ -9,6 +9,7 @@ export default {
     format: 'iife'
   },
   name: 'blargh',
+  sourcemap: true,
   plugins: [
     resolve({
       // use "jsnext:main" if possible
