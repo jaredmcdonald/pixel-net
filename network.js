@@ -48,7 +48,7 @@ export default function trainNeuralNet(input, output, nonlin = sigmoid) {
     synapse = Matrix.add(synapse, layer0.transpose().mmul(layer1Delta))
 
     // update biases: take the cumulative error in each prediction, normalize it
-    // (by multiplying by the rate), and add it to exitsting biases (I think?)
+    // (by multiplying by the rate), and add it to existing biases (I think?)
     biases = Matrix.add(
       biases,
       Matrix.mul(layer1Error.sum('column'), LEARNING_RATE)
